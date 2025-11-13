@@ -1,27 +1,26 @@
 # app.py
 
-import configparser
-from flask import Flask, render_template # <- Importamos render_template
+import os # Importar la librería para leer variables de entorno
+from flask import Flask, render_template
+# import configparser # Ya no es necesario si quitamos la lectura de config.ini
 from ssh_utils import connect_ssh, execute_command 
 
 app = Flask(__name__)
 
-# --- Lectura de Credenciales ---
-config = configparser.ConfigParser()
+# --- Lectura de Credenciales DESDE EL ENTORNO ---
 try:
-    config.read('config.ini')
-    HOSTNAME = config['mikrotik_router']['hostname']
-    USERNAME = config['mikrotik_router']['username']
-    PASSWORD = config['mikrotik_router']['password']
+    # Si la variable de entorno no existe, fallará aquí
+    HOSTNAME = os.environ['MIKROTIK_HOST']
+    USERNAME = os.environ['MIKROTIK_USER']
+    PASSWORD = os.environ['MIKROTIK_PASS']
     CONFIG_LOADED = True
-except Exception as e:
-    print(f"ERROR: No se pudo cargar la configuración de config.ini: {e}")
+except KeyError as e:
+    print(f"ERROR: Falta la variable de entorno: {e}")
     CONFIG_LOADED = False
-# ------------------------------
+# -----------------------------------------------
 
 @app.route('/')
 def index():
-    # Variables a pasar a la plantilla HTML
     template_vars = {
         'title': 'Mikrotik Status',
         'status': 'error',
@@ -32,13 +31,14 @@ def index():
     
     if not CONFIG_LOADED:
         template_vars['title'] = "❌ Error de Configuración"
-        template_vars['message'] = "No se pudieron cargar las credenciales de 'config.ini'."
-        return render_template('index.html', **template_vars), 500
+        template_vars['message'] = "Faltan variables de entorno (MIKROTIK_HOST, MIKROTIK_USER, MIKROTIK_PASS)."
+        # Si las credenciales no se cargan, devolvemos un error 500
+        return render_template('index.html', **template_vars), 500 
 
     client = None
     
     try:
-        # 1. CONEXIÓN
+        # 1. CONEXIÓN (Usando las variables del entorno)
         client = connect_ssh(HOSTNAME, USERNAME, PASSWORD)
         
         if client is None:
@@ -53,8 +53,6 @@ def index():
         template_vars['status'] = 'success'
         template_vars['title'] = "✅ Estado de Interfaces de Mikrotik"
         template_vars['message'] = f"Conexión exitosa a {HOSTNAME}."
-        
-        # El HTML espera la salida ya formateada, reemplazamos '\n' por saltos de línea HTML
         template_vars['interfaces_output'] = interfaces_output.strip() 
 
     except Exception as e:
@@ -62,12 +60,10 @@ def index():
         template_vars['message'] = f"Ocurrió un error al ejecutar comandos: {e}"
         
     finally:
-        # 4. CIERRE de la conexión
         if client:
             client.close()
             
-    # <- Renderizamos el archivo index.html
     return render_template('index.html', **template_vars)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000)

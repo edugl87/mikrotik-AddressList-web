@@ -2,6 +2,7 @@
 
 # Archivo de credenciales (¡NO debe subirse!)
 config.ini
+.env
 
 # Archivos y carpetas de Python
 __pycache__/

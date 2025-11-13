@@ -1,6 +1,8 @@
 services:
   mikrotik-addresslist-web:
     build: . 
+    env_file:
+      - .env
     container_name: mikrotik-addresslist-web 
     ports:
       - "5000:5000"
