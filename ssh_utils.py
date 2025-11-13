@@ -35,7 +35,4 @@ def connect_ssh(hostname, username, password):
     except Exception as e:
         print(f"❌ Error de conexión: {e}")
     
-    return None # Retorna None si la conexión falla
-
-# Nota: La función execute_command no necesita el cliente en este archivo.
-# Se le pasará cuando se use en el archivo principal.
+    return None
