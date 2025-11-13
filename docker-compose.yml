@@ -1,0 +1,20 @@
+services:
+  mikrotik-addresslist-web:
+    # 1. Indicamos a Docker Compose que construya la imagen
+    #    usando el Dockerfile que está en el directorio actual.
+    build: . 
+    
+    # 2. Asignamos un nombre al contenedor para fácil gestión.
+    container_name: mikrotik-addresslist-web 
+    
+    # 3. Mapeamos el puerto interno (5000) al puerto externo (5000) de tu host.
+    ports:
+      - "5000:5000"
+      
+    # 4. (Opcional pero útil) Reinicia el contenedor si se detiene inesperadamente.
+    restart: unless-stopped 
+    
+    # 5. Sobreescribe el comando CMD en el Dockerfile para 
+    #    ejecutar Flask de forma más robusta (sin modo debug).
+    #    Nota: Si usas Gunicorn/uWSGI en producción, el comando sería diferente.
+    command: python app.py
