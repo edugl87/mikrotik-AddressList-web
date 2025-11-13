@@ -1,0 +1,18 @@
+# .gitignore
+
+# Archivo de credenciales (¡NO debe subirse!)
+config.ini
+
+# Archivos y carpetas de Python
+__pycache__/
+*.pyc
+
+# Archivos de entorno virtual de Python
+.venv/
+venv/
+
+# Archivos y carpetas de Docker
+# Se ignoran para simplificar, aunque a veces se incluyen.
+# En este caso, asumimos que no quieres subir la imagen o datos locales.
+# Si quieres subir la imagen, ignora estas líneas
+.dockerignore
